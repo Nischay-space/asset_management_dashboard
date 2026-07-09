@@ -18,9 +18,12 @@ class AssetOut(BaseModel):
     asset_code: str
     name: str
     category: Optional[str]
+    commodity_type: Optional[str]
+    brand_name: Optional[str]
+    model_name: Optional[str]
+    serial_number: Optional[str]
     location: Optional[str]
     status: Optional[str]
-    value: Optional[float]
     is_active: bool
     created_at: datetime
     assigned_users: List[UserOut] = []
