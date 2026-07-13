@@ -58,9 +58,10 @@ const columns = [
 
 interface AssetTableProps {
   assets: Asset[];
+  onRowClick: (id: number) => void;
 }
 
-export default function AssetTable({ assets }: AssetTableProps) {
+export default function AssetTable({ assets,onRowClick }: AssetTableProps) {
   const table = useReactTable({
     data: assets,
     columns,
@@ -86,7 +87,11 @@ export default function AssetTable({ assets }: AssetTableProps) {
         </thead>
         <tbody className="divide-y divide-gray-200">
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="hover:bg-gray-50">
+            <tr
+              key={row.id}
+              onClick={() => onRowClick(row.original.id)}
+              className="hover:bg-gray-50 cursor-pointer"
+            >
               {row.getVisibleCells().map((cell) => (
                 <td key={cell.id} className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

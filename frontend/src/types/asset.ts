@@ -21,3 +21,21 @@ export interface Asset {
   created_at: string;
   assigned_users: User[];
 }
+export interface AssetSummary {
+  id: number;
+  asset_code: string;
+  name: string;
+  commodity_type: string | null;
+  brand_name: string | null;
+  location: string | null;
+  status: string | null;
+  is_active: boolean;
+}
+
+export interface UserWithAssets {
+  id: number;
+  name: string;
+  email: string | null;
+  role: string;
+  assigned_assets: AssetSummary[];
+}

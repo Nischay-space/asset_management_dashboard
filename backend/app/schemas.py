@@ -30,3 +30,27 @@ class AssetOut(BaseModel):
 
     class Config:
         from_attributes = True
+        
+class AssetSummary(BaseModel):
+    id: int
+    asset_code: str
+    name: str
+    commodity_type: Optional[str]
+    brand_name: Optional[str]
+    location: Optional[str]
+    status: Optional[str]
+    is_active: bool
+
+    class Config:
+        from_attributes = True
+
+
+class UserWithAssets(BaseModel):
+    id: int
+    name: str
+    email: Optional[str]
+    role: str
+    assigned_assets: List[AssetSummary] = []
+
+    class Config:
+        from_attributes = True
