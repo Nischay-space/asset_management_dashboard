@@ -30,7 +30,7 @@ class AssetOut(BaseModel):
 
     class Config:
         from_attributes = True
-        
+
 class AssetSummary(BaseModel):
     id: int
     asset_code: str
@@ -54,3 +54,14 @@ class UserWithAssets(BaseModel):
 
     class Config:
         from_attributes = True
+
+class InvoiceOut(BaseModel):
+    id: int
+    file_name: str
+    file_size: int
+    file_type: str
+    uploaded_at: datetime
+    notes: Optional[str]
+
+    class Config:
+        from_attributes = True       

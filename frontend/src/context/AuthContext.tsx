@@ -1,8 +1,10 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { login as loginApi } from '../api/auth';
+import { decodeToken } from '../utils/jwt';
 
 interface AuthContextType {
   token: string | null;
+  role: string | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -24,8 +26,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
   }
 
+  const decoded = token ? decodeToken(token) : null;
+
   const value: AuthContextType = {
     token,
+    role: decoded?.role ?? null,
     isAuthenticated: token !== null,
     login,
     logout,
