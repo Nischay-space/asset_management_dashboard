@@ -5,6 +5,8 @@ import {
   flexRender,
 } from '@tanstack/react-table';
 import type { Asset } from '../types/asset';
+import StatusBadge from './StatusBadge';
+import { orDash } from '../utils/format';
 
 const columnHelper = createColumnHelper<Asset>();
 
@@ -17,35 +19,35 @@ const columns = [
   }),
   columnHelper.accessor('category', {
     header: 'Category',
-    cell: (info) => info.getValue() ?? '—',
+    cell: (info) => orDash(info.getValue())
   }),
   columnHelper.accessor('commodity_type', {
     header: 'Type',
-    cell: (info) => info.getValue() ?? '—',
+    cell: (info) => orDash(info.getValue())
   }),
   columnHelper.accessor('brand_name', {
     header: 'Brand',
-    cell: (info) => info.getValue() ?? '—',
+    cell: (info) => orDash(info.getValue())
   }),
   columnHelper.accessor('model_name', {
     header: 'Model',
-    cell: (info) => info.getValue() ?? '—',
+    cell: (info) => orDash(info.getValue())
   }),
   columnHelper.accessor('serial_number', {
     header: 'Serial Number',
-    cell: (info) => info.getValue() ?? '—',
+    cell: (info) => orDash(info.getValue())
   }),
   columnHelper.accessor('location', {
     header: 'Location',
-    cell: (info) => info.getValue() ?? '—',
+    cell: (info) => orDash(info.getValue())
   }),
   columnHelper.accessor('status', {
     header: 'Status',
-    cell: (info) => info.getValue() ?? '—',
+    cell: (info) => orDash(info.getValue())
   }),
   columnHelper.accessor('is_active', {
     header: 'Active',
-    cell: (info) => (info.getValue() ? 'Yes' : 'No'),
+    cell: (info) => <StatusBadge isActive={info.getValue()} />,
   }),
   columnHelper.accessor('assigned_users', {
     header: 'Assigned To',

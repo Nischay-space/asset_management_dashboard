@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { getUser } from '../api/users';
 import Navbar from '../components/Navbar';
 import AssetDetailModal from '../components/AssetDetailModal';
+import StatusBadge from '../components/StatusBadge';
 
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -42,9 +43,7 @@ export default function UserDetailPage() {
                   className="w-full text-left py-3 flex justify-between items-center hover:bg-gray-50"
                 >
                   <span className="text-sm text-gray-800">{asset.name} <span className="text-gray-400">· {asset.asset_code}</span></span>
-                  <span className={`text-xs px-2 py-0.5 rounded ${asset.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                    {asset.is_active ? 'Active' : 'Inactive'}
-                  </span>
+                  <StatusBadge isActive={asset.is_active} />
                 </button>
               ))}
             </div>
