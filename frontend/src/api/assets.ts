@@ -23,11 +23,24 @@ export async function getAssets(filters: AssetFilters = {}): Promise<Asset[]> {
   return response.data;
 }
 
+
 export async function getFilterOptions(): Promise<FilterOptions> {
   const response = await apiClient.get<FilterOptions>('/assets/filter-options');
   return response.data;
 }
 export async function getAsset(id: number): Promise<Asset> {
   const response = await apiClient.get<Asset>(`/assets/${id}`);
+  return response.data;
+}
+export interface AssetSummaryStats {
+  total_assets: number;
+  active_assets: number;
+  inactive_assets: number;
+  total_locations: number;
+  total_users: number;
+}
+
+export async function getSummary(): Promise<AssetSummaryStats> {
+  const response = await apiClient.get<AssetSummaryStats>('/assets/summary');
   return response.data;
 }

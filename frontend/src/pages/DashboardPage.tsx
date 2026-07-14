@@ -13,6 +13,7 @@ import AssetCharts from '../components/AssetCharts';
 import TableSkeleton from '../components/TableSkeleton';
 import UserCharts from '../components/UserCharts';
 import { exportAssetsToCsv, exportUsersToCsv } from '../utils/export';
+import KpiCards from '../components/KpiCards';
 
 export default function DashboardPage() {
   const [view, setView] = useState<'users' | 'assets'>('users');
@@ -58,6 +59,7 @@ export default function DashboardPage() {
         <FilterSidebar view={view} onViewChange={setView} filters={filters} onChange={handleFilterChange} />
 
         <main className="flex-1 min-w-0 overflow-auto p-6">
+          <KpiCards />
           {view === 'users' && !filteredUsers && <TableSkeleton columns={5} />}
           {view === 'users' && filteredUsers && (
             <>
