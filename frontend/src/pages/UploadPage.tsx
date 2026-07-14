@@ -2,6 +2,7 @@ import { useState, type ChangeEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import apiClient from '../api/client';
 import Navbar from '../components/Navbar';
+import toast from 'react-hot-toast';
 
 interface UploadResult {
   message: string;
@@ -38,8 +39,10 @@ function UploadCard({ title, description, endpoint }: { title: string; descripti
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['filter-options'] });
       setFile(null);
+      toast.success('Upload successful');
     } catch {
       setError('Upload failed. Check the file format and try again.');
+      toast.error('Upload failed. Check the file format and try again.');
     } finally {
       setIsUploading(false);
     }

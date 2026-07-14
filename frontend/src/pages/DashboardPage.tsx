@@ -9,7 +9,10 @@ import Navbar from '../components/Navbar';
 import AssetDetailModal from '../components/AssetDetailModal';
 import UserTable from '../components/UserTable';
 import { getUsers } from '../api/users';
-
+import AssetCharts from '../components/AssetCharts';
+import TableSkeleton from '../components/TableSkeleton';
+import UserCharts from '../components/UserCharts';
+import { exportAssetsToCsv, exportUsersToCsv } from '../utils/export';
 
 export default function DashboardPage() {
   const [view, setView] = useState<'users' | 'assets'>('users');
@@ -30,6 +33,9 @@ export default function DashboardPage() {
       if (value) params[key] = value;
     });
     setSearchParams(params);
+  }
+  function handleChartClick(field: 'commodity_type' | 'location', value: string) {
+    handleFilterChange({ ...filters, [field]: value });
   }
 
   const { data: users } = useQuery({ queryKey: ['users'], queryFn: getUsers, enabled: view === 'users' });
@@ -52,20 +58,38 @@ export default function DashboardPage() {
         <FilterSidebar view={view} onViewChange={setView} filters={filters} onChange={handleFilterChange} />
 
         <main className="flex-1 min-w-0 overflow-auto p-6">
+          {view === 'users' && !filteredUsers && <TableSkeleton columns={5} />}
           {view === 'users' && filteredUsers && (
             <>
-              <p className="text-gray-700 mb-3">{filteredUsers.length} people found</p>
+              <UserCharts users={filteredUsers} />
+              <div className="flex justify-between items-center mb-3">
+                <p className="text-gray-700">{filteredUsers.length} people found</p>
+                <button
+                  onClick={() => exportUsersToCsv(filteredUsers)}
+                  className="text-sm bg-white border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-50"
+                >
+                  Export CSV
+                </button>
+              </div>
               <UserTable users={filteredUsers} onAssetClick={setSelectedAssetId} />
             </>
           )}
-
           {view === 'assets' && (
             <>
-              {isLoading && <p className="text-gray-600">Loading assets...</p>}
+              {isLoading && <TableSkeleton />}
               {isError && <p className="text-red-600">Failed to load assets.</p>}
               {assets && (
                 <>
-                  <p className="text-gray-700 mb-3">{assets.length} assets found</p>
+                  <AssetCharts assets={assets} onSliceClick={handleChartClick} />
+                  <div className="flex justify-between items-center mb-3">
+                    <p className="text-gray-700">{assets.length} assets found</p>
+                    <button
+                      onClick={() => exportAssetsToCsv(assets)}
+                      className="text-sm bg-white border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-50"
+                    >
+                      Export CSV
+                    </button>
+                  </div>
                   <AssetTable assets={assets} onRowClick={setSelectedAssetId} />
                 </>
               )}
@@ -74,9 +98,11 @@ export default function DashboardPage() {
         </main>
       </div>
 
-      {selectedAssetId && (
-        <AssetDetailModal assetId={selectedAssetId} onClose={() => setSelectedAssetId(null)} />
-      )}
-    </div>
+      {
+        selectedAssetId && (
+          <AssetDetailModal assetId={selectedAssetId} onClose={() => setSelectedAssetId(null)} />
+        )
+      }
+    </div >
   );
 }

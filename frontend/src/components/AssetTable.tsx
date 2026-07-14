@@ -1,13 +1,15 @@
 import {
   useReactTable,
   getCoreRowModel,
+  getSortedRowModel,
   createColumnHelper,
   flexRender,
+  type SortingState,
 } from '@tanstack/react-table';
-import type { Asset } from '../types/asset';
+import { useState } from 'react';
 import StatusBadge from './StatusBadge';
 import { orDash } from '../utils/format';
-
+import type { Asset } from '../types/asset';
 const columnHelper = createColumnHelper<Asset>();
 
 const columns = [
@@ -63,12 +65,19 @@ interface AssetTableProps {
   onRowClick: (id: number) => void;
 }
 
-export default function AssetTable({ assets,onRowClick }: AssetTableProps) {
+
+export default function AssetTable({ assets, onRowClick }: AssetTableProps) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+
   const table = useReactTable({
     data: assets,
     columns,
+    state: { sorting },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
+
 
   return (
     <div className="bg-white rounded-lg shadow overflow-x-auto">
@@ -79,9 +88,11 @@ export default function AssetTable({ assets,onRowClick }: AssetTableProps) {
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap"
+                  onClick={header.column.getToggleSortingHandler()}
+                  className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap cursor-pointer select-none hover:bg-gray-100"
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
+                  {{ asc: ' ▲', desc: ' ▼' }[header.column.getIsSorted() as string] ?? ''}
                 </th>
               ))}
             </tr>
@@ -102,7 +113,7 @@ export default function AssetTable({ assets,onRowClick }: AssetTableProps) {
             </tr>
           ))}
         </tbody>
-      </table>
+       </table>
     </div>
   );
 }

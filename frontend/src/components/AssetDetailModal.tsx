@@ -7,6 +7,7 @@ import Modal from './Modal';
 import StatusBadge from './StatusBadge';
 import { orDash } from '../utils/format';
 import EmptyState from './EmptyState';
+import toast from 'react-hot-toast';
 
 interface AssetDetailModalProps {
   assetId: number;
@@ -34,24 +35,32 @@ export default function AssetDetailModal({ assetId, onClose }: AssetDetailModalP
     queryFn: () => getInvoices(assetId),
   });
 
-  async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+ async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    setIsUploading(true);
-    try {
-      await uploadInvoice(assetId, file);
-      queryClient.invalidateQueries({ queryKey: ['invoices', assetId] });
-    } finally {
-      setIsUploading(false);
-      e.target.value = '';
-    }
+  setIsUploading(true);
+  try {
+    await uploadInvoice(assetId, file);
+    queryClient.invalidateQueries({ queryKey: ['invoices', assetId] });
+    toast.success('Invoice uploaded');
+  } catch {
+    toast.error('Upload failed. Check file type and size.');
+  } finally {
+    setIsUploading(false);
+    e.target.value = '';
   }
+}
 
-  async function handleDelete(invoiceId: number) {
+async function handleDelete(invoiceId: number) {
+  try {
     await deleteInvoice(invoiceId);
     queryClient.invalidateQueries({ queryKey: ['invoices', assetId] });
+    toast.success('Invoice deleted');
+  } catch {
+    toast.error('Failed to delete invoice');
   }
+}
 
   return (
     <Modal onClose={onClose}>
