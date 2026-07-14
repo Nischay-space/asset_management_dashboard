@@ -44,6 +44,22 @@ def list_assets(
         ).distinct()
 
     return query.all()
+
+@router.get("/summary")
+def get_summary(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    total_assets = db.query(models.Asset).count()
+    active_assets = db.query(models.Asset).filter(models.Asset.is_active == True).count()
+    inactive_assets = total_assets - active_assets
+    total_locations = db.query(models.Asset.location).filter(models.Asset.location.isnot(None)).distinct().count()
+    total_users = db.query(models.User).count()
+
+    return {
+        "total_assets": total_assets,
+        "active_assets": active_assets,
+        "inactive_assets": inactive_assets,
+        "total_locations": total_locations,
+        "total_users": total_users,
+    }
 #filter endpoint
 @router.get("/filter-options")
 def get_filter_options(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -65,18 +81,3 @@ def get_asset(asset_id: int, db: Session = Depends(get_db), current_user: User =
         raise HTTPException(status_code=404, detail="Asset not found")
     return asset
 
-@router.get("/summary")
-def get_summary(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    total_assets = db.query(models.Asset).count()
-    active_assets = db.query(models.Asset).filter(models.Asset.is_active == True).count()
-    inactive_assets = total_assets - active_assets
-    total_locations = db.query(models.Asset.location).filter(models.Asset.location.isnot(None)).distinct().count()
-    total_users = db.query(models.User).count()
-
-    return {
-        "total_assets": total_assets,
-        "active_assets": active_assets,
-        "inactive_assets": inactive_assets,
-        "total_locations": total_locations,
-        "total_users": total_users,
-    }
