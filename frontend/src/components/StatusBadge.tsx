@@ -1,11 +1,18 @@
+import Chip from './Chip';
+import { getStatusStyle } from '../utils/statusStyles';
+
 interface StatusBadgeProps {
-  isActive: boolean;
+  status?: string | null;
+  isActive?: boolean;
 }
 
-export default function StatusBadge({ isActive }: StatusBadgeProps) {
+export default function StatusBadge({ status, isActive }: StatusBadgeProps) {
+  const effectiveStatus = status ?? (isActive !== undefined ? (isActive ? 'Active' : 'Inactive') : null);
+  const style = getStatusStyle(effectiveStatus);
+
   return (
-    <span className={`text-xs px-2 py-1 rounded ${isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-      {isActive ? 'Active' : 'Inactive'}
-    </span>
+    <Chip bg={style.bg} text={style.text}>
+      {effectiveStatus ?? 'Unknown'}
+    </Chip>
   );
 }

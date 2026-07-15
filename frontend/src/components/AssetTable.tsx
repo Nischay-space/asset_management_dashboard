@@ -10,11 +10,13 @@ import { useState } from 'react';
 import StatusBadge from './StatusBadge';
 import { orDash } from '../utils/format';
 import type { Asset } from '../types/asset';
+import Chip from './Chip';
 const columnHelper = createColumnHelper<Asset>();
 
 const columns = [
   columnHelper.accessor('asset_code', {
     header: 'Asset Code',
+    cell: (info) => <span className="text-primary font-medium">{info.getValue()}</span>,
   }),
   columnHelper.accessor('name', {
     header: 'Name',
@@ -29,7 +31,7 @@ const columns = [
   }),
   columnHelper.accessor('brand_name', {
     header: 'Brand',
-    cell: (info) => orDash(info.getValue())
+    cell: (info) => info.getValue() ? <Chip outlined>{info.getValue()}</Chip> : orDash(null),
   }),
   columnHelper.accessor('model_name', {
     header: 'Model',
@@ -45,12 +47,9 @@ const columns = [
   }),
   columnHelper.accessor('status', {
     header: 'Status',
-    cell: (info) => orDash(info.getValue())
+    cell: (info) => <StatusBadge status={info.getValue()} />,
   }),
-  columnHelper.accessor('is_active', {
-    header: 'Active',
-    cell: (info) => <StatusBadge isActive={info.getValue()} />,
-  }),
+
   columnHelper.accessor('assigned_users', {
     header: 'Assigned To',
     cell: (info) => {
@@ -81,15 +80,15 @@ export default function AssetTable({ assets, onRowClick }: AssetTableProps) {
 
   return (
     <div className="bg-white rounded-lg shadow overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-gray-100">
+        <thead className="bg-gray-50 sticky top-0 z-[1]">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
                   onClick={header.column.getToggleSortingHandler()}
-                  className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap cursor-pointer select-none hover:bg-gray-100"
+                  className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap cursor-pointer select-none hover:bg-gray-100 transition-colors"
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
                   {{ asc: ' ▲', desc: ' ▼' }[header.column.getIsSorted() as string] ?? ''}
@@ -98,12 +97,12 @@ export default function AssetTable({ assets, onRowClick }: AssetTableProps) {
             </tr>
           ))}
         </thead>
-        <tbody className="divide-y divide-gray-200">
+        <tbody className="divide-y divide-gray-50">
           {table.getRowModel().rows.map((row) => (
             <tr
               key={row.id}
               onClick={() => onRowClick(row.original.id)}
-              className="hover:bg-gray-50 cursor-pointer"
+              className="hover:bg-gray-50 cursor-pointer transition-colors"
             >
               {row.getVisibleCells().map((cell) => (
                 <td key={cell.id} className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
@@ -113,7 +112,7 @@ export default function AssetTable({ assets, onRowClick }: AssetTableProps) {
             </tr>
           ))}
         </tbody>
-       </table>
+      </table>
     </div>
   );
 }
