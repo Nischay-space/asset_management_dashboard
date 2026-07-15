@@ -38,6 +38,7 @@ export interface AssetSummaryStats {
   inactive_assets: number;
   total_locations: number;
   total_users: number;
+  recently_added: number;
 }
 
 export async function getSummary(): Promise<AssetSummaryStats> {

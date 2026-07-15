@@ -14,32 +14,50 @@ export default function AssetCharts({ assets, onSliceClick }: AssetChartsProps) 
     const byLocation = countBy(assets, (a) => a.location).slice(0, 8);
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div className="bg-white rounded-lg shadow p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4" >
+            <div className="bg-white rounded-lg shadow-sm p-4">
                 <p className="text-sm font-semibold text-gray-700 mb-2">By commodity type</p>
-                <ResponsiveContainer width="100%" height={200}>
-                    <PieChart>
-                        <Pie
-                            data={byType}
-                            dataKey="count"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={70}
-                            onClick={(entry) => {
-                                if (entry.name) onSliceClick('commodity_type', String(entry.name));
-                            }}
-                            className="cursor-pointer"
-                        >
-                            {byType.map((_, index) => (
-                                <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                        </Pie>
-                        <Tooltip />
-                    </PieChart>
-                </ResponsiveContainer>
-            </div>
+                <div className="flex items-center gap-2">
+                    <ResponsiveContainer width="55%" height={260}>
+                        <PieChart>
+                            <Pie
+                                data={byType}
+                                dataKey="count"
+                                nameKey="name"
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={45}
+                                outerRadius={75}
+                                onClick={(entry) => {
+                                    if (entry.name) onSliceClick('commodity_type', String(entry.name));
+                                }}
+                                className="cursor-pointer"
+                            >
+                                {byType.map((_, index) => (
+                                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip />
+                        </PieChart>
+                    </ResponsiveContainer>
 
+                    <div className="flex-1 grid grid-cols-2 gap-x-2 gap-y-1 max-h-65 overflow-y-auto pr-1">
+                        {byType.map((entry, index) => (
+                            <button
+                                key={entry.name}
+                                onClick={() => onSliceClick('commodity_type', entry.name)}
+                                className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-gray-900 text-left"
+                            >
+                                <span
+                                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                                />
+                                <span className="truncate">{entry.name}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
             <div className="bg-white rounded-lg shadow p-4">
                 <p className="text-sm font-semibold text-gray-700 mb-2">By location</p>
                 <ResponsiveContainer width="100%" height={200}>
@@ -58,6 +76,6 @@ export default function AssetCharts({ assets, onSliceClick }: AssetChartsProps) 
                     </BarChart>
                 </ResponsiveContainer>
             </div>
-        </div>
+        </div >
     );
 }

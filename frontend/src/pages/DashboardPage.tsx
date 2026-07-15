@@ -14,6 +14,7 @@ import TableSkeleton from '../components/TableSkeleton';
 import UserCharts from '../components/UserCharts';
 import { exportAssetsToCsv, exportUsersToCsv } from '../utils/export';
 import KpiCards from '../components/KpiCards';
+import ActiveFilterChips from '../components/ActiveFilterChips';
 
 export default function DashboardPage() {
   const [view, setView] = useState<'users' | 'assets'>('users');
@@ -38,6 +39,15 @@ export default function DashboardPage() {
   function handleChartClick(field: 'commodity_type' | 'location', value: string) {
     handleFilterChange({ ...filters, [field]: value });
   }
+  function handleRemoveFilter(key: keyof AssetFilters) {
+  const updated = { ...filters };
+  delete updated[key];
+  handleFilterChange(updated);
+}
+
+function handleClearAllFilters() {
+  handleFilterChange({});
+}
 
   const { data: users } = useQuery({ queryKey: ['users'], queryFn: getUsers, enabled: view === 'users' });
   const { data: assets, isLoading, isError } = useQuery({
@@ -83,6 +93,7 @@ export default function DashboardPage() {
               {assets && (
                 <>
                   <AssetCharts assets={assets} onSliceClick={handleChartClick} />
+                  <ActiveFilterChips filters={filters} onRemove={handleRemoveFilter} onClearAll={handleClearAllFilters} />
                   <div className="flex justify-between items-center mb-3">
                     <p className="text-gray-700">{assets.length} assets found</p>
                     <button

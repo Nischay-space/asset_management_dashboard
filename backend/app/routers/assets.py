@@ -6,6 +6,7 @@ from app import models, schemas
 from app.auth import get_current_user
 from app.models import User
 from typing import List, Optional
+from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/assets", tags=["assets"])
 
@@ -53,12 +54,16 @@ def get_summary(db: Session = Depends(get_db), current_user: User = Depends(get_
     total_locations = db.query(models.Asset.location).filter(models.Asset.location.isnot(None)).distinct().count()
     total_users = db.query(models.User).count()
 
+    seven_days_ago = datetime.utcnow() - timedelta(days=7)
+    recently_added = db.query(models.Asset).filter(models.Asset.created_at >= seven_days_ago).count()
+
     return {
         "total_assets": total_assets,
         "active_assets": active_assets,
         "inactive_assets": inactive_assets,
         "total_locations": total_locations,
         "total_users": total_users,
+        "recently_added": recently_added,
     }
 #filter endpoint
 @router.get("/filter-options")
