@@ -15,6 +15,7 @@ import UserCharts from '../components/UserCharts';
 import { exportAssetsToCsv, exportUsersToCsv } from '../utils/export';
 import KpiCards from '../components/KpiCards';
 import ActiveFilterChips from '../components/ActiveFilterChips';
+import Footer from '../components/Footer';
 
 export default function DashboardPage() {
   const [view, setView] = useState<'users' | 'assets'>('users');
@@ -107,7 +108,8 @@ function handleClearAllFilters() {
                 </>
               )}
             </>
-          )}
+          )}'
+          <Footer />
         </main>
       </div>
 

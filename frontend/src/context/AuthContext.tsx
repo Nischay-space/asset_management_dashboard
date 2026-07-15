@@ -5,6 +5,7 @@ import { decodeToken } from '../utils/jwt';
 interface AuthContextType {
   token: string | null;
   role: string | null;
+  name: string | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -29,12 +30,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const decoded = token ? decodeToken(token) : null;
 
   const value: AuthContextType = {
-    token,
-    role: decoded?.role ?? null,
-    isAuthenticated: token !== null,
-    login,
-    logout,
-  };
+  token,
+  role: decoded?.role ?? null,
+  name: decoded?.name ?? null,
+  isAuthenticated: token !== null,
+  login,
+  logout,
+};
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

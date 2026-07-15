@@ -1,9 +1,9 @@
 interface DecodedToken {
   sub: string;
   role: string;
+  name: string;
   exp: number;
 }
-
 export function decodeToken(token: string): DecodedToken | null {
   try {
     const payload = token.split('.')[1];
