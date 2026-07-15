@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import or_
 from app.database import get_db
 from app import models, schemas
-from app.auth import get_current_user
+from app.auth import get_current_user, require_admin
 from app.models import User
 from typing import List, Optional
 from datetime import datetime, timedelta
@@ -65,6 +65,34 @@ def get_summary(db: Session = Depends(get_db), current_user: User = Depends(get_
         "total_users": total_users,
         "recently_added": recently_added,
     }
+@router.post("/", response_model=schemas.AssetOut)
+def create_asset(payload: schemas.AssetCreate, db: Session = Depends(get_db), current_user: User = Depends(require_admin)):
+    existing = db.query(models.Asset).filter(models.Asset.asset_code == payload.asset_code).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="An asset with this code already exists")
+
+    asset = models.Asset(**payload.model_dump(), is_active=True)
+    db.add(asset)
+    db.commit()
+    db.refresh(asset)
+    return asset
+
+
+@router.patch("/{asset_id}", response_model=schemas.AssetOut)
+def update_asset(asset_id: int, payload: schemas.AssetUpdate, db: Session = Depends(get_db), current_user: User = Depends(require_admin)):
+    asset = db.query(models.Asset).filter(models.Asset.id == asset_id).first()
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset not found")
+
+    updates = payload.model_dump(exclude_unset=True)
+    for field, value in updates.items():
+        setattr(asset, field, value)
+
+    db.commit()
+    db.refresh(asset)
+    return asset
+
+
 #filter endpoint
 @router.get("/filter-options")
 def get_filter_options(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -85,4 +113,5 @@ def get_asset(asset_id: int, db: Session = Depends(get_db), current_user: User =
     if not asset:
         raise HTTPException(status_code=404, detail="Asset not found")
     return asset
+    
 

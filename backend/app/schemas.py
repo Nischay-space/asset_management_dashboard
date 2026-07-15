@@ -64,4 +64,38 @@ class InvoiceOut(BaseModel):
     notes: Optional[str]
 
     class Config:
-        from_attributes = True       
+        from_attributes = True    
+    
+class AssetCreate(BaseModel):
+    asset_code: str
+    name: str
+    category: Optional[str] = None
+    commodity_type: Optional[str] = None
+    brand_name: Optional[str] = None
+    model_name: Optional[str] = None
+    serial_number: Optional[str] = None
+    location: Optional[str] = None
+    status: Optional[str] = None
+
+
+class AssetUpdate(BaseModel):
+    name: Optional[str] = None
+    category: Optional[str] = None
+    commodity_type: Optional[str] = None
+    brand_name: Optional[str] = None
+    model_name: Optional[str] = None
+    serial_number: Optional[str] = None
+    location: Optional[str] = None
+    status: Optional[str] = None
+    is_active: Optional[bool] = None 
+      
+class UserCreate(BaseModel):
+    name: str
+    email: Optional[str] = None
+    role: str = "viewer"
+
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    role: Optional[str] = None

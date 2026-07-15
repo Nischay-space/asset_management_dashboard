@@ -45,3 +45,7 @@ export async function getSummary(): Promise<AssetSummaryStats> {
   const response = await apiClient.get<AssetSummaryStats>('/assets/summary');
   return response.data;
 }
+
+export async function deleteAsset(id: number): Promise<void> {
+  await apiClient.delete(`/assets/${id}`);
+}

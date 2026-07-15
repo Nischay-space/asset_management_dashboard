@@ -38,8 +38,8 @@ class AssetAssignment(Base):
     __tablename__ = "asset_assignments"
 
     id = Column(Integer, primary_key=True)
-    asset_id = Column(Integer, ForeignKey("assets.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    asset_id = Column(Integer, ForeignKey("assets.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     assigned_at = Column(DateTime(timezone=True), server_default=func.now())
 
     __table_args__ = (
@@ -50,9 +50,9 @@ class Invoice(Base):
     __tablename__ = "invoices"
 
     id = Column(Integer, primary_key=True, index=True)
-    asset_id = Column(Integer, ForeignKey("assets.id"), nullable=False)
+    asset_id = Column(Integer, ForeignKey("assets.id", ondelete="CASCADE"), nullable=False)
     file_name = Column(String, nullable=False)
-    file_path = Column(String, nullable=False)
+    file_path = Column(String, nullable=False)  
     file_size = Column(Integer, nullable=False)
     file_type = Column(String, nullable=False)
     uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False)
