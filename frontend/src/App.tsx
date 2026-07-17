@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoutes';
 import UserDetailPage from './pages/UserDetailPage';
 import UploadPage from './pages/UploadPage';
 import AdminRoute from './components/AdminRoute';
+import DuplicatesPage from './pages/DuplicatesPage';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
         <Route path="/users/:id" element={<ProtectedRoute><UserDetailPage /></ProtectedRoute>} />
         <Route path="/upload" element={<AdminRoute><UploadPage /></AdminRoute>} />
+        <Route path="/duplicates" element={<AdminRoute><DuplicatesPage /></AdminRoute>} />
       </Routes>
     </BrowserRouter>
   );

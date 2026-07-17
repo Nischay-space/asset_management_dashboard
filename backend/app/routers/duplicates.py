@@ -30,13 +30,21 @@ def get_duplicate_candidates(db: Session = Depends(get_db), current_user: User =
             if pair_key in dismissed_pairs:
                 continue
 
-            score = fuzz.ratio(user_a.name.lower(), user_b.name.lower())
-            if score >= SIMILARITY_THRESHOLD and score < 100:
-                candidates.append({
-                    "user_a": {"id": user_a.id, "name": user_a.name, "email": user_a.email, "asset_count": len(user_a.assigned_assets)},
-                    "user_b": {"id": user_b.id, "name": user_b.name, "email": user_b.email, "asset_count": len(user_b.assigned_assets)},
-                    "similarity": score,
-                })
+            name_score = fuzz.ratio(user_a.name.lower(), user_b.name.lower())
+
+            if name_score < SIMILARITY_THRESHOLD:
+                continue
+
+            reason = "similar name"
+            if name_score == 100:
+                reason = "identical name, different location on record"
+
+            candidates.append({
+                "user_a": {"id": user_a.id, "name": user_a.name, "email": user_a.email, "asset_count": len(user_a.assigned_assets)},
+                "user_b": {"id": user_b.id, "name": user_b.name, "email": user_b.email, "asset_count": len(user_b.assigned_assets)},
+                "similarity": name_score,
+                "reason": reason,
+            })
 
     candidates.sort(key=lambda c: c["similarity"], reverse=True)
     return candidates
@@ -77,17 +85,14 @@ def merge_users(payload: MergeRequest, db: Session = Depends(get_db), current_us
     if not keep_user or not remove_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    assignments = db.query(AssetAssignment).filter(AssetAssignment.user_id == payload.remove_user_id).all()
-    for assignment in assignments:
-        already_linked = db.query(AssetAssignment).filter(
-            AssetAssignment.asset_id == assignment.asset_id,
-            AssetAssignment.user_id == payload.keep_user_id,
-        ).first()
-        if already_linked:
-            db.delete(assignment)
-        else:
-            assignment.user_id = payload.keep_user_id
+    for asset in list(remove_user.assigned_assets):
+        if keep_user not in asset.assigned_users:
+            asset.assigned_users.append(keep_user)
+        asset.assigned_users.remove(remove_user)
+
+    db.flush()
 
     db.delete(remove_user)
     db.commit()
+
     return {"message": f"Merged into {keep_user.name}"}

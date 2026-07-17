@@ -19,6 +19,12 @@ export default function Navbar() {
               Upload
             </Link>
           )}
+          {role === 'admin' && (
+            <Link to="/duplicates" className="ml-4 text-sm text-gray-500 hover:text-primary">
+              Duplicates
+            </Link>
+          )
+          }
         </div>
 
         <div className="flex items-center gap-3">
