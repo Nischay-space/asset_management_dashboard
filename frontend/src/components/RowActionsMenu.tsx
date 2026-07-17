@@ -8,11 +8,12 @@ interface RowActionsMenuProps {
 
 export default function RowActionsMenu({ onEdit, onDelete }: RowActionsMenuProps) {
   const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [openUpward, setOpenUpward] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
@@ -20,10 +21,20 @@ export default function RowActionsMenu({ onEdit, onDelete }: RowActionsMenuProps
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  function toggleOpen(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!open && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setOpenUpward(spaceBelow < 140);
+    }
+    setOpen((v) => !v);
+  }
+
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="relative" ref={containerRef}>
       <button
-        onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+        onClick={toggleOpen}
         className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700"
         aria-label="Row actions"
       >
@@ -31,7 +42,11 @@ export default function RowActionsMenu({ onEdit, onDelete }: RowActionsMenuProps
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-20">
+        <div
+          className={`absolute right-0 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-20 ${
+            openUpward ? 'bottom-full mb-1' : 'top-full mt-1'
+          }`}
+        >
           <button
             onClick={(e) => { e.stopPropagation(); setOpen(false); onEdit(); }}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"

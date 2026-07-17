@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-table';
 import { useNavigate } from 'react-router-dom';
 import type { UserWithAssets } from '../types/asset';
+import RowActionsMenu from './RowActionsMenu';
 
 const columnHelper = createColumnHelper<UserWithAssets>();
 
@@ -21,38 +22,7 @@ function groupByCommodityType(assets: UserWithAssets['assigned_assets']) {
   return Object.entries(counts);
 }
 
-const columns = [
-  columnHelper.display({
-    id: 'expander',
-    header: '',
-    cell: ({ row }) => (
-      <button onClick={row.getToggleExpandedHandler()} className="text-gray-400 hover:text-gray-700">
-        {row.getIsExpanded() ? '▾' : '▸'}
-      </button>
-    ),
-  }),
-  columnHelper.accessor('name', {
-    header: 'Name',
-    cell: ({ row, getValue }) => (
-      <NameLink id={row.original.id} name={getValue()} />
-    ),
-  }),
-  columnHelper.accessor('email', { header: 'Email', cell: (info) => info.getValue() ?? '—' }),
-  columnHelper.accessor('role', { header: 'Role' }),
-  columnHelper.display({
-    id: 'assetBreakdown',
-    header: 'Assets',
-    cell: ({ row }) => (
-      <div className="flex flex-wrap gap-1">
-        {groupByCommodityType(row.original.assigned_assets).map(([type, count]) => (
-          <span key={type} className="text-xs bg-gray-100 text-gray-600 rounded px-2 py-0.5 whitespace-nowrap">
-            {type} × {count}
-          </span>
-        ))}
-      </div>
-    ),
-  }),
-];
+
 function NameLink({ id, name }: { id: number; name: string }) {
   const navigate = useNavigate();
   return (
@@ -68,11 +38,56 @@ function NameLink({ id, name }: { id: number; name: string }) {
 interface UserTableProps {
   users: UserWithAssets[];
   onAssetClick: (id: number) => void;
+  onEdit: (user: UserWithAssets) => void;
+  onDelete: (user: UserWithAssets) => void;
 }
 
-export default function UserTable({ users, onAssetClick }: UserTableProps) {
+export default function UserTable({ users, onAssetClick, onEdit, onDelete }: UserTableProps) {
   const [expanded, setExpanded] = useState<ExpandedState>({});
   const navigate = useNavigate();
+
+  const columns = [
+    columnHelper.display({
+      id: 'expander',
+      header: '',
+      cell: ({ row }) => (
+        <button onClick={row.getToggleExpandedHandler()} className="text-gray-400 hover:text-gray-700">
+          {row.getIsExpanded() ? '▾' : '▸'}
+        </button>
+      ),
+    }),
+    columnHelper.accessor('name', {
+      header: 'Name',
+      cell: ({ row, getValue }) => (
+        <NameLink id={row.original.id} name={getValue()} />
+      ),
+    }),
+    columnHelper.accessor('email', { header: 'Email', cell: (info) => info.getValue() ?? '—' }),
+    columnHelper.accessor('role', { header: 'Role' }),
+    columnHelper.display({
+      id: 'assetBreakdown',
+      header: 'Assets',
+      cell: ({ row }) => (
+        <div className="flex flex-wrap gap-1">
+          {groupByCommodityType(row.original.assigned_assets).map(([type, count]) => (
+            <span key={type} className="text-xs bg-gray-100 text-gray-600 rounded px-2 py-0.5 whitespace-nowrap">
+              {type} × {count}
+            </span>
+          ))}
+        </div>
+      ),
+    }),
+    columnHelper.display({
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => (
+        <RowActionsMenu
+          onEdit={() => onEdit(row.original)}
+          onDelete={() => onDelete(row.original)}
+        />
+      ),
+    }),
+  ];
 
   const table = useReactTable({
     data: users,
@@ -103,7 +118,11 @@ export default function UserTable({ users, onAssetClick }: UserTableProps) {
             <>
               <tr key={row.id} className="hover:bg-gray-50">
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
+                  <td
+                    key={cell.id}
+                    onClick={cell.column.id === 'actions' ? (e) => e.stopPropagation() : undefined}
+                    className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap"
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}

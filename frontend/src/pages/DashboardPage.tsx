@@ -23,6 +23,9 @@ import type { Asset } from '../types/asset';
 import { Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
+import UserFormModal from '../components/UserFormModal';
+import { deleteUser } from '../api/users';
+import type { UserWithAssets } from '../types/asset';
 
 export default function DashboardPage() {
   const [view, setView] = useState<'users' | 'assets'>('users');
@@ -32,6 +35,8 @@ export default function DashboardPage() {
   const queryClient = useQueryClient();
   const [formAsset, setFormAsset] = useState<Asset | 'new' | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Asset | null>(null);
+  const [formUser, setFormUser] = useState<UserWithAssets | 'new' | null>(null);
+  const [deleteUserTarget, setDeleteUserTarget] = useState<UserWithAssets | null>(null);
 
   const filters: AssetFilters = {
     category: searchParams.get('category') ?? undefined,
@@ -75,6 +80,20 @@ export default function DashboardPage() {
     }
   }
 
+  async function handleConfirmDeleteUser() {
+    if (!deleteUserTarget) return;
+    try {
+      await deleteUser(deleteUserTarget.id);
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['summary'] });
+      toast.success('User deleted');
+    } catch {
+      toast.error('Failed to delete user');
+    } finally {
+      setDeleteUserTarget(null);
+    }
+  }
+
   const { data: users } = useQuery({ queryKey: ['users'], queryFn: getUsers, enabled: view === 'users' });
   const { data: assets, isLoading, isError } = useQuery({
     queryKey: ['assets', filters],
@@ -102,14 +121,21 @@ export default function DashboardPage() {
               <UserCharts users={filteredUsers} />
               <div className="flex justify-between items-center mb-3">
                 <p className="text-gray-700">{filteredUsers.length} people found</p>
-                <button
-                  onClick={() => exportUsersToCsv(filteredUsers)}
-                  className="text-sm bg-white border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-50"
-                >
-                  Export CSV
-                </button>
+                <div className="flex gap-2">
+                  {role === 'admin' && (
+                    <button
+                      onClick={() => setFormUser('new')}
+                      className="text-sm bg-primary text-white rounded-lg px-3 py-1.5 hover:bg-primary-hover flex items-center gap-1"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Add Person
+                    </button>
+                  )}
+                  <button onClick={() => exportUsersToCsv(filteredUsers)} className="text-sm bg-white border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-50">
+                    Export CSV
+                  </button>
+                </div>
               </div>
-              <UserTable users={filteredUsers} onAssetClick={setSelectedAssetId} />
+              <UserTable users={filteredUsers} onAssetClick={setSelectedAssetId} onEdit={setFormUser} onDelete={setDeleteUserTarget} />
             </>
           )}
           {view === 'assets' && (
@@ -150,31 +176,45 @@ export default function DashboardPage() {
         </main>
       </div>
 
-      { <>
-    
+      {<>
+
         {selectedAssetId && (
           <AssetDetailModal assetId={selectedAssetId} onClose={() => setSelectedAssetId(null)} />
         )
-      }
-        {formAsset && (
-        <AssetFormModal
-          asset={formAsset === 'new' ? undefined : formAsset}
-          onClose={() => setFormAsset(null)}
-        />
-      )}
-
-      {deleteTarget && (
-        <ConfirmDialog
-          title="Delete this asset?"
-          message={`This will permanently delete ${deleteTarget.name} and any attached invoices. This cannot be undone.`}
-          confirmLabel="Delete"
-          isDangerous
-          onConfirm={handleConfirmDelete}
-          onCancel={() => setDeleteTarget(null)}
-        />
-      )}
-        </>
         }
+        {formAsset && (
+          <AssetFormModal
+            asset={formAsset === 'new' ? undefined : formAsset}
+            onClose={() => setFormAsset(null)}
+          />
+        )}
+
+        {deleteTarget && (
+          <ConfirmDialog
+            title="Delete this asset?"
+            message={`This will permanently delete ${deleteTarget.name} and any attached invoices. This cannot be undone.`}
+            confirmLabel="Delete"
+            isDangerous
+            onConfirm={handleConfirmDelete}
+            onCancel={() => setDeleteTarget(null)}
+          />
+        )}
+        {formUser && (
+          <UserFormModal user={formUser === 'new' ? undefined : formUser} onClose={() => setFormUser(null)} />
+        )}
+        {deleteUserTarget && (
+          <ConfirmDialog
+            title="Delete this person?"
+            message={`This will remove ${deleteUserTarget.name} and unassign their devices. Devices will not be deleted.`}
+            confirmLabel="Delete"
+            isDangerous
+            onConfirm={handleConfirmDeleteUser}
+            onCancel={() => setDeleteUserTarget(null)}
+          />
+        )}
+
+      </>
+      }
     </div >
   );
 }

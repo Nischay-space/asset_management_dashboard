@@ -61,3 +61,16 @@ class Invoice(Base):
 
     asset = relationship("Asset", backref="invoices")
     uploader = relationship("User")
+
+class DuplicateDismissal(Base):
+    __tablename__ = "duplicate_dismissals"
+
+    id = Column(Integer, primary_key=True)
+    user_id_a = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id_b = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    dismissed_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    dismissed_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        UniqueConstraint("user_id_a", "user_id_b", name="uq_dismissed_pair"),
+    )
