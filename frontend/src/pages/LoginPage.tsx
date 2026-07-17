@@ -35,7 +35,7 @@ export default function LoginPage() {
         <h1 className="text-3xl font-semibold mb-3">Asset Dashboard</h1>
         <p className="text-blue-100 leading-relaxed">
           Centralized visibility into every device, assignment, and invoice
-          across your organization — searchable, filterable, and always current.
+          across your organization - searchable, filterable, and always current.
         </p>
       </div>
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAssets } from '../api/assets';
 import type { AssetFilters } from '../api/assets';
 import AssetTable from '../components/AssetTable';
@@ -16,11 +16,22 @@ import { exportAssetsToCsv, exportUsersToCsv } from '../utils/export';
 import KpiCards from '../components/KpiCards';
 import ActiveFilterChips from '../components/ActiveFilterChips';
 import Footer from '../components/Footer';
+import AssetFormModal from '../components/AssetFormModal';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { deleteAsset } from '../api/assets';
+import type { Asset } from '../types/asset';
+import { Plus } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 
 export default function DashboardPage() {
   const [view, setView] = useState<'users' | 'assets'>('users');
   const [selectedAssetId, setSelectedAssetId] = useState<number | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const { role } = useAuth();
+  const queryClient = useQueryClient();
+  const [formAsset, setFormAsset] = useState<Asset | 'new' | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Asset | null>(null);
 
   const filters: AssetFilters = {
     category: searchParams.get('category') ?? undefined,
@@ -41,14 +52,28 @@ export default function DashboardPage() {
     handleFilterChange({ ...filters, [field]: value });
   }
   function handleRemoveFilter(key: keyof AssetFilters) {
-  const updated = { ...filters };
-  delete updated[key];
-  handleFilterChange(updated);
-}
+    const updated = { ...filters };
+    delete updated[key];
+    handleFilterChange(updated);
+  }
 
-function handleClearAllFilters() {
-  handleFilterChange({});
-}
+  function handleClearAllFilters() {
+    handleFilterChange({});
+  }
+  // Function to handle asset deletion
+  async function handleConfirmDelete() {
+    if (!deleteTarget) return;
+    try {
+      await deleteAsset(deleteTarget.id);
+      queryClient.invalidateQueries({ queryKey: ['assets'] });
+      queryClient.invalidateQueries({ queryKey: ['summary'] });
+      toast.success('Asset deleted');
+    } catch {
+      toast.error('Failed to delete asset');
+    } finally {
+      setDeleteTarget(null);
+    }
+  }
 
   const { data: users } = useQuery({ queryKey: ['users'], queryFn: getUsers, enabled: view === 'users' });
   const { data: assets, isLoading, isError } = useQuery({
@@ -97,27 +122,59 @@ function handleClearAllFilters() {
                   <ActiveFilterChips filters={filters} onRemove={handleRemoveFilter} onClearAll={handleClearAllFilters} />
                   <div className="flex justify-between items-center mb-3">
                     <p className="text-gray-700">{assets.length} assets found</p>
-                    <button
-                      onClick={() => exportAssetsToCsv(assets)}
-                      className="text-sm bg-white border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-50"
-                    >
-                      Export CSV
-                    </button>
+                    <div className="flex gap-2">
+                      {role === 'admin' && (
+                        <button
+                          onClick={() => setFormAsset('new')}
+                          className="text-sm bg-primary text-white rounded-lg px-3 py-1.5 hover:bg-primary-hover flex items-center gap-1"
+                        >
+                          <Plus className="w-3.5 h-3.5" /> Add Asset
+                        </button>
+                      )}
+                      <button onClick={() => exportAssetsToCsv(assets)} className="text-sm bg-white border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-50">
+                        Export CSV
+                      </button>
+                    </div>
                   </div>
-                  <AssetTable assets={assets} onRowClick={setSelectedAssetId} />
+                  <AssetTable
+                    assets={assets}
+                    onRowClick={setSelectedAssetId}
+                    onEdit={setFormAsset}
+                    onDelete={setDeleteTarget}
+                  />
                 </>
               )}
             </>
-          )}'
+          )}
           <Footer />
         </main>
       </div>
 
-      {
-        selectedAssetId && (
+      { <>
+    
+        {selectedAssetId && (
           <AssetDetailModal assetId={selectedAssetId} onClose={() => setSelectedAssetId(null)} />
         )
       }
+        {formAsset && (
+        <AssetFormModal
+          asset={formAsset === 'new' ? undefined : formAsset}
+          onClose={() => setFormAsset(null)}
+        />
+      )}
+
+      {deleteTarget && (
+        <ConfirmDialog
+          title="Delete this asset?"
+          message={`This will permanently delete ${deleteTarget.name} and any attached invoices. This cannot be undone.`}
+          confirmLabel="Delete"
+          isDangerous
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
+        </>
+        }
     </div >
   );
 }

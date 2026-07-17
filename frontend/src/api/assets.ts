@@ -71,3 +71,10 @@ export async function updateAsset(id: number, data: Partial<AssetFormData>): Pro
   const response = await apiClient.patch<Asset>(`/assets/${id}`, data);
   return response.data;
 }
+export async function assignUser(assetId: number, userId: number): Promise<void> {
+  await apiClient.post(`/assets/${assetId}/assignments/${userId}`);
+}
+
+export async function unassignUser(assetId: number, userId: number): Promise<void> {
+  await apiClient.delete(`/assets/${assetId}/assignments/${userId}`);
+}

@@ -8,6 +8,9 @@ from app.models import User
 from typing import List, Optional
 from datetime import datetime, timedelta
 from app.utils import normalize_title
+from app.models import AssetAssignment
+from app.models import Invoice
+from app.services.storage import delete_file
 
 router = APIRouter(prefix="/assets", tags=["assets"])
 
@@ -83,6 +86,64 @@ def create_asset(payload: schemas.AssetCreate, db: Session = Depends(get_db), cu
     db.refresh(asset)
     return asset
 
+@router.post("/{asset_id}/assignments/{user_id}")
+def assign_user_to_asset(asset_id: int, user_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_admin)):
+    asset = db.query(models.Asset).filter(models.Asset.id == asset_id).first()
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not asset or not user:
+        raise HTTPException(status_code=404, detail="Asset or user not found")
+
+    existing = db.query(AssetAssignment).filter(
+        AssetAssignment.asset_id == asset_id, AssetAssignment.user_id == user_id
+    ).first()
+    if existing:
+        return {"message": "Already assigned"}
+
+    db.add(AssetAssignment(asset_id=asset_id, user_id=user_id))
+    db.commit()
+    return {"message": "User assigned"}
+
+
+@router.delete("/{asset_id}/assignments/{user_id}")
+def unassign_user_from_asset(asset_id: int, user_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_admin)):
+    assignment = db.query(AssetAssignment).filter(
+        AssetAssignment.asset_id == asset_id, AssetAssignment.user_id == user_id
+    ).first()
+    if not assignment:
+        raise HTTPException(status_code=404, detail="Assignment not found")
+
+    db.delete(assignment)
+    db.commit()
+    return {"message": "User unassigned"}
+
+@router.get("/filter-options")
+def get_filter_options(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    categories = db.query(models.Asset.category).distinct().filter(models.Asset.category.isnot(None)).all()
+    commodity_types = db.query(models.Asset.commodity_type).distinct().filter(models.Asset.commodity_type.isnot(None)).all()
+    locations = db.query(models.Asset.location).distinct().filter(models.Asset.location.isnot(None)).all()
+    statuses = db.query(models.Asset.status).distinct().filter(models.Asset.status.isnot(None)).all()
+
+    return {
+        "categories": sorted([c[0] for c in categories]),
+        "commodity_types": sorted([c[0] for c in commodity_types]),
+        "locations": sorted([c[0] for c in locations]),
+        "statuses": sorted([c[0] for c in statuses]),
+    }
+
+@router.delete("/{asset_id}")
+def delete_asset(asset_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_admin)):
+    asset = db.query(models.Asset).filter(models.Asset.id == asset_id).first()
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset not found")
+
+    invoices = db.query(Invoice).filter(Invoice.asset_id == asset_id).all()
+    for invoice in invoices:
+        delete_file(invoice.file_path)
+
+    db.delete(asset)
+    db.commit()
+
+    return {"message": "Asset deleted"}
 
 @router.patch("/{asset_id}", response_model=schemas.AssetOut)
 def update_asset(asset_id: int, payload: schemas.AssetUpdate, db: Session = Depends(get_db), current_user: User = Depends(require_admin)):
@@ -104,24 +165,12 @@ def update_asset(asset_id: int, payload: schemas.AssetUpdate, db: Session = Depe
 
 
 #filter endpoint
-@router.get("/filter-options")
-def get_filter_options(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    categories = db.query(models.Asset.category).distinct().filter(models.Asset.category.isnot(None)).all()
-    commodity_types = db.query(models.Asset.commodity_type).distinct().filter(models.Asset.commodity_type.isnot(None)).all()
-    locations = db.query(models.Asset.location).distinct().filter(models.Asset.location.isnot(None)).all()
-    statuses = db.query(models.Asset.status).distinct().filter(models.Asset.status.isnot(None)).all()
-
-    return {
-        "categories": sorted([c[0] for c in categories]),
-        "commodity_types": sorted([c[0] for c in commodity_types]),
-        "locations": sorted([c[0] for c in locations]),
-        "statuses": sorted([c[0] for c in statuses]),
-    }
 @router.get("/{asset_id}", response_model=schemas.AssetOut)
 def get_asset(asset_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     asset = db.query(models.Asset).filter(models.Asset.id == asset_id).first()
     if not asset:
         raise HTTPException(status_code=404, detail="Asset not found")
     return asset
+
     
 

@@ -11,9 +11,23 @@ import StatusBadge from './StatusBadge';
 import { orDash } from '../utils/format';
 import type { Asset } from '../types/asset';
 import Chip from './Chip';
+import RowActionsMenu from './RowActionsMenu';
+
 const columnHelper = createColumnHelper<Asset>();
 
-const columns = [
+
+
+interface AssetTableProps {
+  assets: Asset[];
+  onRowClick: (id: number) => void;
+  onEdit: (asset: Asset) => void;
+  onDelete: (asset: Asset) => void;
+}
+
+export default function AssetTable({ assets, onRowClick, onEdit, onDelete }: AssetTableProps) {
+
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const columns = [
   columnHelper.accessor('asset_code', {
     header: 'Asset Code',
     cell: (info) => <span className="text-primary font-medium">{info.getValue()}</span>,
@@ -57,16 +71,17 @@ const columns = [
       return users.length > 0 ? users.map((u) => u.name).join(', ') : '—';
     },
   }),
+  columnHelper.display({
+    id: 'actions',
+    header: '',
+    cell: ({ row }) => (
+      <RowActionsMenu
+        onEdit={() => onEdit(row.original)}
+        onDelete={() => onDelete(row.original)}
+      />
+    ),
+  }),
 ];
-
-interface AssetTableProps {
-  assets: Asset[];
-  onRowClick: (id: number) => void;
-}
-
-
-export default function AssetTable({ assets, onRowClick }: AssetTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
     data: assets,
@@ -81,7 +96,7 @@ export default function AssetTable({ assets, onRowClick }: AssetTableProps) {
   return (
     <div className="bg-white rounded-lg shadow overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-100">
-        <thead className="bg-gray-50 sticky top-0 z-[1]">
+        <thead className="bg-gray-50 sticky top-0 z-1">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
@@ -105,7 +120,11 @@ export default function AssetTable({ assets, onRowClick }: AssetTableProps) {
               className="hover:bg-gray-50 cursor-pointer transition-colors"
             >
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
+                <td
+                  key={cell.id}
+                  onClick={cell.column.id === 'actions' ? (e) => e.stopPropagation() : undefined}
+                  className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap"
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
