@@ -49,3 +49,25 @@ export async function getSummary(): Promise<AssetSummaryStats> {
 export async function deleteAsset(id: number): Promise<void> {
   await apiClient.delete(`/assets/${id}`);
 }
+
+export interface AssetFormData {
+  asset_code?: string;
+  name: string;
+  category?: string;
+  commodity_type?: string;
+  brand_name?: string;
+  model_name?: string;
+  serial_number?: string;
+  location?: string;
+  status?: string;
+}
+
+export async function createAsset(data: AssetFormData): Promise<Asset> {
+  const response = await apiClient.post<Asset>('/assets/', data);
+  return response.data;
+}
+
+export async function updateAsset(id: number, data: Partial<AssetFormData>): Promise<Asset> {
+  const response = await apiClient.patch<Asset>(`/assets/${id}`, data);
+  return response.data;
+}

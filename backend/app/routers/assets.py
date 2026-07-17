@@ -7,6 +7,7 @@ from app.auth import get_current_user, require_admin
 from app.models import User
 from typing import List, Optional
 from datetime import datetime, timedelta
+from app.utils import normalize_title
 
 router = APIRouter(prefix="/assets", tags=["assets"])
 
@@ -71,7 +72,12 @@ def create_asset(payload: schemas.AssetCreate, db: Session = Depends(get_db), cu
     if existing:
         raise HTTPException(status_code=400, detail="An asset with this code already exists")
 
-    asset = models.Asset(**payload.model_dump(), is_active=True)
+    data = payload.model_dump()
+    for field in ("category", "commodity_type", "location", "status"):
+        if data.get(field):
+            data[field] = normalize_title(data[field])
+
+    asset = models.Asset(**data, is_active=True)
     db.add(asset)
     db.commit()
     db.refresh(asset)
@@ -85,6 +91,10 @@ def update_asset(asset_id: int, payload: schemas.AssetUpdate, db: Session = Depe
         raise HTTPException(status_code=404, detail="Asset not found")
 
     updates = payload.model_dump(exclude_unset=True)
+    for field in ("category", "commodity_type", "location", "status"):
+        if field in updates and updates[field]:
+            updates[field] = normalize_title(updates[field])
+
     for field, value in updates.items():
         setattr(asset, field, value)
 
