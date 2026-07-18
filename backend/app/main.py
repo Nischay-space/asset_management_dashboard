@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import assets, upload, auth_router, users, invoices, duplicates
+from app.routers import assets, upload, auth_router, users, invoices, duplicates, search
 
 app = FastAPI(title="Asset Dashboard API")
 
@@ -18,6 +18,7 @@ app.include_router(auth_router.router)
 app.include_router(users.router)
 app.include_router(invoices.router)
 app.include_router(duplicates.router)
+app.include_router(search.router)
 
 
 @app.get("/")
