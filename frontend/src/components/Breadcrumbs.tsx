@@ -2,9 +2,11 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 
 const ROUTE_LABELS: Record<string, string> = {
-  '': 'Dashboard',
+  dashboard: 'Dashboard',
+  assets: 'Assets',
+  users: 'Users',
   upload: 'Upload',
-  users: 'People',
+  duplicates: 'Duplicates',
 };
 
 export default function Breadcrumbs() {
@@ -21,11 +23,10 @@ export default function Breadcrumbs() {
   });
 
   return (
-    <nav className="flex items-center text-sm text-gray-500">
-      <Link to="/" className="hover:text-gray-700">{ROUTE_LABELS['']}</Link>
-      {crumbs.map((crumb) => (
+    <nav className="flex items-center text-sm text-gray-500 mb-2">
+      {crumbs.map((crumb, index) => (
         <span key={crumb.path} className="flex items-center">
-          <ChevronRight className="w-3.5 h-3.5 mx-1 text-gray-300" />
+          {index > 0 && <ChevronRight className="w-3.5 h-3.5 mx-1 text-gray-300" />}
           <Link to={crumb.path} className="hover:text-gray-700 last:text-gray-700 last:font-medium">
             {crumb.label}
           </Link>

@@ -3,7 +3,6 @@ import { AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getDuplicateCandidates, dismissPair, mergeUsers } from '../api/duplicates';
 import type { DuplicateCandidate, DuplicateUserRef } from '../api/duplicates';
-import Navbar from '../components/Navbar';
 import EmptyState from '../components/EmptyState';
 
 function CandidateCard({ candidate, onResolved }: { candidate: DuplicateCandidate; onResolved: () => void }) {
@@ -83,8 +82,7 @@ export default function DuplicatesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-app-bg">
-            <Navbar />
+        
             <div className="p-6 max-w-3xl mx-auto space-y-4">
                 <h1 className="text-xl font-bold text-gray-800">Possible Duplicate People</h1>
                 <p className="text-sm text-gray-500">
@@ -97,6 +95,6 @@ export default function DuplicatesPage() {
                     <CandidateCard key={`${c.user_a.id}-${c.user_b.id}`} candidate={c} onResolved={handleResolved} />
                 ))}
             </div>
-        </div>
+        
     );
 }

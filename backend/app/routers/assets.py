@@ -69,6 +69,19 @@ def get_summary(db: Session = Depends(get_db), current_user: User = Depends(get_
         "total_users": total_users,
         "recently_added": recently_added,
     }
+
+@router.get("/recent")
+def get_recent_assets(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    recent = (
+        db.query(models.Asset)
+        .order_by(models.Asset.created_at.desc())
+        .limit(5)
+        .all()
+    )
+    return [
+        {"id": a.id, "asset_code": a.asset_code, "name": a.name, "created_at": a.created_at}
+        for a in recent
+    ]
 @router.post("/", response_model=schemas.AssetOut)
 def create_asset(payload: schemas.AssetCreate, db: Session = Depends(get_db), current_user: User = Depends(require_admin)):
     existing = db.query(models.Asset).filter(models.Asset.asset_code == payload.asset_code).first()

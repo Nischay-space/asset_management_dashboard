@@ -2,7 +2,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getUser } from '../api/users';
-import Navbar from '../components/Navbar';
 import AssetDetailModal from '../components/AssetDetailModal';
 import StatusBadge from '../components/StatusBadge';
 import { deleteUser } from '../api/users';
@@ -40,8 +39,7 @@ export default function UserDetailPage() {
   return (
     <>
 
-      <div className="min-h-screen bg-gray-100">
-        <Navbar />
+      
         <div className="p-6 max-w-3xl mx-auto">
           <button onClick={() => navigate(-1)} className="text-sm text-blue-600 hover:underline mb-4">
             ← Back
@@ -88,7 +86,7 @@ export default function UserDetailPage() {
         {selectedAssetId && (
           <AssetDetailModal assetId={selectedAssetId} onClose={() => setSelectedAssetId(null)} />
         )}
-      </div>
+      
       {showDeleteConfirm && (
         <ConfirmDialog
           title="Delete this user?"

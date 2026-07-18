@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { UploadCloud, FileText, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import apiClient from '../api/client';
-import Navbar from '../components/Navbar';
+
 
 interface UploadResult {
   message: string;
@@ -153,21 +153,18 @@ function UploadCard({ title, description, endpoint }: { title: string; descripti
 
 export default function UploadPage() {
   return (
-    <div className="min-h-screen bg-app-bg">
-      <Navbar />
-      <div className="p-6 max-w-2xl mx-auto space-y-6">
-        <h1 className="text-xl font-bold text-gray-800">Upload Assets</h1>
-        <UploadCard
-          title="Standard Asset Template"
-          description="Clean template with one row per asset (asset_code, name, category, etc.)"
-          endpoint="/upload/"
-        />
-        <UploadCard
-          title="Hardware List (per-person format)"
-          description="Wide-format company hardware list, one row per person"
-          endpoint="/upload/hardware-list"
-        />
-      </div>
+    <div className="p-6 max-w-2xl mx-auto space-y-6">
+      <h1 className="text-xl font-bold text-gray-800">Upload Assets</h1>
+      <UploadCard
+        title="Standard Asset Template"
+        description="Clean template with one row per asset (asset_code, name, category, etc.)"
+        endpoint="/upload/"
+      />
+      <UploadCard
+        title="Hardware List (per-person format)"
+        description="Wide-format company hardware list, one row per person"
+        endpoint="/upload/hardware-list"
+      />
     </div>
   );
 }

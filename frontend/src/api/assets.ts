@@ -60,6 +60,17 @@ export interface AssetFormData {
   serial_number?: string;
   location?: string;
   status?: string;
+} 
+export interface RecentAsset {
+  id: number;
+  asset_code: string;
+  name: string;
+  created_at: string;
+}
+
+export async function getRecentAssets(): Promise<RecentAsset[]> {
+  const response = await apiClient.get<RecentAsset[]>('/assets/recent');
+  return response.data;
 }
 
 export async function createAsset(data: AssetFormData): Promise<Asset> {
