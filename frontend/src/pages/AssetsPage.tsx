@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getAssets, deleteAsset } from '../api/assets';
 import type { AssetFilters } from '../api/assets';
 import type { Asset } from '../types/asset';
-import { useAuth } from '../context/AuthContext';
 import { exportAssetsToCsv } from '../utils/export';
 import AssetTable from '../components/AssetTable';
 import AssetCharts from '../components/AssetCharts';
@@ -19,7 +17,6 @@ import TableSkeleton from '../components/TableSkeleton';
 import EmptyState from '../components/EmptyState';
 
 export default function AssetsPage() {
-  const { role } = useAuth();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -76,21 +73,11 @@ export default function AssetsPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold text-gray-800">Assets</h1>
-        <div className="flex gap-2">
-          {role === 'admin' && (
-            <button
-              onClick={() => setFormAsset('new')}
-              className="text-sm bg-primary text-white rounded-lg px-3 py-1.5 hover:bg-primary-hover flex items-center gap-1"
-            >
-              <Plus className="w-3.5 h-3.5" /> Add Asset
-            </button>
-          )}
-          {assets && (
-            <button onClick={() => exportAssetsToCsv(assets)} className="text-sm bg-white border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-50">
-              Export CSV
-            </button>
-          )}
-        </div>
+        {assets && (
+          <button onClick={() => exportAssetsToCsv(assets)} className="text-sm bg-white border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-50">
+            Export CSV
+          </button>
+        )}
       </div>
 
       <AssetFilterPanel filters={filters} onChange={handleFilterChange} />

@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getUsers, deleteUser } from '../api/users';
 import type { UserWithAssets } from '../types/asset';
-import { useAuth } from '../context/AuthContext';
 import { exportUsersToCsv } from '../utils/export';
 import UserTable from '../components/UserTable';
 import UserCharts from '../components/UserCharts';
@@ -15,7 +13,6 @@ import TableSkeleton from '../components/TableSkeleton';
 import EmptyState from '../components/EmptyState';
 
 export default function PeoplePage() {
-  const { role } = useAuth();
   const queryClient = useQueryClient();
 
   const [search, setSearch] = useState('');
@@ -49,21 +46,13 @@ export default function PeoplePage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold text-gray-800">Users</h1>
-        <div className="flex gap-2">
-          {role === 'admin' && (
-            <button
-              onClick={() => setFormUser('new')}
-              className="text-sm bg-primary text-white rounded-lg px-3 py-1.5 hover:bg-primary-hover flex items-center gap-1"
-            >
-              <Plus className="w-3.5 h-3.5" /> Add Person
-            </button>
-          )}
+        
           {filteredUsers && (
             <button onClick={() => exportUsersToCsv(filteredUsers)} className="text-sm bg-white border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-50">
               Export CSV
             </button>
           )}
-        </div>
+        
       </div>
 
       <input
