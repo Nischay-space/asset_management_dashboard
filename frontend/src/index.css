@@ -13,6 +13,8 @@
   --color-danger-bg: #FEE2E2;
   --color-info: #06B6D4;
   --color-app-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-border-subtle: #F1F5F9;
 }
 
 body {
