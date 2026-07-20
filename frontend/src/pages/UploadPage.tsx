@@ -7,7 +7,16 @@ import apiClient from '../api/client';
 
 interface UploadResult {
   message: string;
-  summary: Record<string, number>;
+  summary: {
+    assets_added?: number;
+    assets_updated?: number;
+    new_users_created?: number;
+    new_assignments?: number;
+    assets_deactivated?: number;
+    unmapped_columns?: string[];
+    skipped_rows?: string[];
+    uncertain_classifications?: string[];
+  };
 }
 
 function UploadCard({ title, description, endpoint }: { title: string; description: string; endpoint: string }) {
@@ -66,8 +75,9 @@ function UploadCard({ title, description, endpoint }: { title: string; descripti
       queryClient.invalidateQueries({ queryKey: ['summary'] });
       setFile(null);
       toast.success('File processed successfully');
-    } catch {
-      setError('Upload failed. Check the file format and try again.');
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail ?? 'Upload failed. Check the file format and try again.';
+      setError(detail);
       toast.error('Upload failed');
     } finally {
       setIsUploading(false);
@@ -85,9 +95,8 @@ function UploadCard({ title, description, endpoint }: { title: string; descripti
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-lg py-10 flex flex-col items-center justify-center cursor-pointer transition-colors ${
-            isDragging ? 'border-primary bg-blue-50' : 'border-gray-300 hover:border-gray-400'
-          }`}
+          className={`border-2 border-dashed rounded-lg py-10 flex flex-col items-center justify-center cursor-pointer transition-colors ${isDragging ? 'border-primary bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+            }`}
         >
           <UploadCloud className="w-8 h-8 text-gray-400 mb-2" />
           <p className="text-sm text-gray-600">Drag and drop your file here, or click to browse</p>
@@ -138,15 +147,42 @@ function UploadCard({ title, description, endpoint }: { title: string; descripti
       {error && <p className="text-danger text-sm mt-3">{error}</p>}
 
       {result && (
-        <div className="mt-4 bg-success-bg border border-green-200 rounded-lg p-3">
-          <p className="text-sm text-green-800 mb-1">{result.message}</p>
-          <ul className="text-xs text-green-700 grid grid-cols-2 gap-x-4">
-            {Object.entries(result.summary).map(([key, value]) => (
-              <li key={key}>{key.replace(/_/g, ' ')}: <span className="font-medium">{value}</span></li>
-            ))}
-          </ul>
+        <div className="mt-4 space-y-2">
+          <div className="bg-success-bg border border-green-200 rounded-lg p-3">
+            <p className="text-sm text-green-800 mb-1">{result.message}</p>
+            <ul className="text-xs text-green-700 grid grid-cols-2 gap-x-4">
+              {result.summary.assets_added !== undefined && <li>Added: {result.summary.assets_added}</li>}
+              {result.summary.assets_updated !== undefined && <li>Updated: {result.summary.assets_updated}</li>}
+              {result.summary.new_users_created !== undefined && <li>New people: {result.summary.new_users_created}</li>}
+              {result.summary.new_assignments !== undefined && <li>New assignments: {result.summary.new_assignments}</li>}
+              {result.summary.assets_deactivated !== undefined && <li>Deactivated: {result.summary.assets_deactivated}</li>}
+            </ul>
+          </div>
+
+          {result.summary.uncertain_classifications && result.summary.uncertain_classifications.length > 0 && (
+            <div className="bg-warning-bg border border-yellow-200 rounded-lg p-3">
+              <p className="text-sm text-yellow-800 font-medium mb-1">
+                {result.summary.uncertain_classifications.length} item(s) need a quick review
+              </p>
+              <ul className="text-xs text-yellow-700 space-y-0.5 max-h-24 overflow-y-auto">
+                {result.summary.uncertain_classifications.map((msg, i) => <li key={i}>{msg}</li>)}
+              </ul>
+            </div>
+          )}
+
+          {result.summary.skipped_rows && result.summary.skipped_rows.length > 0 && (
+            <div className="bg-danger-bg border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-800 font-medium mb-1">
+                {result.summary.skipped_rows.length} row(s) skipped
+              </p>
+              <ul className="text-xs text-red-700 space-y-0.5 max-h-24 overflow-y-auto">
+                {result.summary.skipped_rows.map((msg, i) => <li key={i}>{msg}</li>)}
+              </ul>
+            </div>
+          )}
         </div>
       )}
+
     </div>
   );
 }

@@ -37,9 +37,9 @@ def upload_hardware_list(
         raise HTTPException(status_code=400, detail="Only .xlsx files are supported")
 
     try:
-        records = parse_wide_excel(file.file)
+        records, report = parse_wide_excel(file.file)
         result = upsert_wide_format(db, records)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to process file: {str(e)}")
 
-    return {"message": "Hardware list processed successfully", "summary": result}
+    return {"message": "Hardware list processed successfully", "summary": {**result, **report}}

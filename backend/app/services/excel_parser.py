@@ -64,4 +64,4 @@ def upsert_assets(db: Session, df: pd.DataFrame) -> dict:
 
     db.commit()
 
-    return {"added": added, "updated": updated, "deactivated": deactivated}
+    return {"assets_added": added, "assets_updated": updated, "assets_deactivated": deactivated}
