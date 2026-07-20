@@ -8,7 +8,7 @@ import Tabs from './Tabs';
 import StatusBadge from './StatusBadge';
 import ConfirmDialog from './ConfirmDialog';
 import { orDash } from '../utils/format';
-import { Trash2, Pencil } from 'lucide-react';
+import { Trash2, } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface AssetDetailModalProps {
