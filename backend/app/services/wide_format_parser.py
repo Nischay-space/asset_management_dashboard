@@ -228,6 +228,7 @@ def upsert_wide_format(db: Session, records: list[dict]) -> dict:
     seen_asset_codes = set()
     users_cache = {}
     assets_by_serial = {}
+    seen_assignment_pairs = set()
     added, updated, new_users, new_assignments, reclassified = 0, 0, 0, 0, 0
 
     for rec in records:
@@ -244,10 +245,8 @@ def upsert_wide_format(db: Session, records: list[dict]) -> dict:
             users_cache[user_key] = user
 
         asset = db.query(Asset).filter(Asset.asset_code == rec["asset_code"]).first()
-
         if not asset:
             asset = assets_by_serial.get(rec["serial_number"])
-
         if not asset:
             asset = db.query(Asset).filter(Asset.serial_number == rec["serial_number"]).first()
 
@@ -285,14 +284,17 @@ def upsert_wide_format(db: Session, records: list[dict]) -> dict:
         assets_by_serial[rec["serial_number"]] = asset
         seen_asset_codes.add(asset.asset_code)
 
-        existing_assignment = (
-            db.query(AssetAssignment)
-            .filter(AssetAssignment.asset_id == asset.id, AssetAssignment.user_id == user.id)
-            .first()
-        )
-        if not existing_assignment:
-            db.add(AssetAssignment(asset_id=asset.id, user_id=user.id))
-            new_assignments += 1
+        assignment_key = (asset.id, user.id)
+        if assignment_key not in seen_assignment_pairs:
+            existing_assignment = (
+                db.query(AssetAssignment)
+                .filter(AssetAssignment.asset_id == asset.id, AssetAssignment.user_id == user.id)
+                .first()
+            )
+            if not existing_assignment:
+                db.add(AssetAssignment(asset_id=asset.id, user_id=user.id))
+                new_assignments += 1
+            seen_assignment_pairs.add(assignment_key)
 
     deactivated = (
         db.query(Asset)

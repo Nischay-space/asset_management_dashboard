@@ -99,3 +99,37 @@ class UserUpdate(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
     role: Optional[str] = None
+
+    
+class WideFormatRecord(BaseModel):
+    asset_code: str
+    name: str
+    category: Optional[str] = None
+    commodity_type: Optional[str] = None
+    brand_name: Optional[str] = None
+    model_name: Optional[str] = None
+    serial_number: str
+    location: Optional[str] = None
+    status: Optional[str] = None
+    assigned_user_key: str
+    assigned_user_name: str
+
+
+class WideFormatCommitRequest(BaseModel):
+    records: List[WideFormatRecord]
+
+
+class StandardRecord(BaseModel):
+    asset_code: str
+    name: str
+    category: Optional[str] = None
+    commodity_type: Optional[str] = None
+    brand_name: Optional[str] = None
+    model_name: Optional[str] = None
+    serial_number: Optional[str] = None
+    location: Optional[str] = None
+    status: Optional[str] = None
+
+
+class StandardCommitRequest(BaseModel):
+    records: List[StandardRecord]
