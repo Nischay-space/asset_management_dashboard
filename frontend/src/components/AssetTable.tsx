@@ -28,60 +28,60 @@ export default function AssetTable({ assets, onRowClick, onEdit, onDelete }: Ass
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const columns = [
-  columnHelper.accessor('asset_code', {
-    header: 'Asset Code',
-    cell: (info) => <span className="text-primary font-medium">{info.getValue()}</span>,
-  }),
-  columnHelper.accessor('name', {
-    header: 'Name',
-  }),
-  columnHelper.accessor('category', {
-    header: 'Category',
-    cell: (info) => orDash(info.getValue())
-  }),
-  columnHelper.accessor('commodity_type', {
-    header: 'Type',
-    cell: (info) => orDash(info.getValue())
-  }),
-  columnHelper.accessor('brand_name', {
-    header: 'Brand',
-    cell: (info) => info.getValue() ? <Chip outlined>{info.getValue()}</Chip> : orDash(null),
-  }),
-  columnHelper.accessor('model_name', {
-    header: 'Model',
-    cell: (info) => orDash(info.getValue())
-  }),
-  columnHelper.accessor('serial_number', {
-    header: 'Serial Number',
-    cell: (info) => orDash(info.getValue())
-  }),
-  columnHelper.accessor('location', {
-    header: 'Location',
-    cell: (info) => orDash(info.getValue())
-  }),
-  columnHelper.accessor('status', {
-    header: 'Status',
-    cell: (info) => <StatusBadge status={info.getValue()} />,
-  }),
+    columnHelper.accessor('asset_code', {
+      header: 'Asset Code',
+      cell: (info) => <span className="text-primary font-medium">{info.getValue()}</span>,
+    }),
+    columnHelper.accessor('name', {
+      header: 'Name',
+    }),
+    columnHelper.accessor('category', {
+      header: 'Category',
+      cell: (info) => orDash(info.getValue())
+    }),
+    columnHelper.accessor('commodity_type', {
+      header: 'Type',
+      cell: (info) => orDash(info.getValue())
+    }),
+    columnHelper.accessor('brand_name', {
+      header: 'Brand',
+      cell: (info) => info.getValue() ? <Chip outlined>{info.getValue()}</Chip> : orDash(null),
+    }),
+    columnHelper.accessor('model_name', {
+      header: 'Model',
+      cell: (info) => orDash(info.getValue())
+    }),
+    columnHelper.accessor('serial_number', {
+      header: 'Serial Number',
+      cell: (info) => orDash(info.getValue())
+    }),
+    columnHelper.accessor('location', {
+      header: 'Location',
+      cell: (info) => orDash(info.getValue())
+    }),
+    columnHelper.accessor('status', {
+      header: 'Status',
+      cell: (info) => <StatusBadge status={info.row.original.is_active ? info.getValue() : 'Inactive'} />,
+    }),
 
-  columnHelper.accessor('assigned_users', {
-    header: 'Assigned To',
-    cell: (info) => {
-      const users = info.getValue();
-      return users.length > 0 ? users.map((u) => u.name).join(', ') : '—';
-    },
-  }),
-  columnHelper.display({
-    id: 'actions',
-    header: '',
-    cell: ({ row }) => (
-      <RowActionsMenu
-        onEdit={() => onEdit(row.original)}
-        onDelete={() => onDelete(row.original)}
-      />
-    ),
-  }),
-];
+    columnHelper.accessor('assigned_users', {
+      header: 'Assigned To',
+      cell: (info) => {
+        const users = info.getValue();
+        return users.length > 0 ? users.map((u) => u.name).join(', ') : '—';
+      },
+    }),
+    columnHelper.display({
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => (
+        <RowActionsMenu
+          onEdit={() => onEdit(row.original)}
+          onDelete={() => onDelete(row.original)}
+        />
+      ),
+    }),
+  ];
 
   const table = useReactTable({
     data: assets,
