@@ -57,10 +57,10 @@ def upsert_assets(db: Session, df: pd.DataFrame) -> dict:
             added += 1
 
     deactivated = (
-        db.query(Asset)
-        .filter(Asset.asset_code.notin_(seen_codes), Asset.is_active == True)
-        .update({Asset.is_active: False}, synchronize_session=False)
-    )
+    db.query(Asset)
+    .filter(Asset.asset_code.notin_(seen_codes), Asset.is_active == True)
+    .update({Asset.is_active: False, Asset.status: "Inactive"}, synchronize_session=False)
+)
 
     db.commit()
 

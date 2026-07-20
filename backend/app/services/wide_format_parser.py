@@ -297,10 +297,10 @@ def upsert_wide_format(db: Session, records: list[dict]) -> dict:
             seen_assignment_pairs.add(assignment_key)
 
     deactivated = (
-        db.query(Asset)
-        .filter(Asset.asset_code.notin_(seen_asset_codes), Asset.is_active == True)
-        .update({Asset.is_active: False}, synchronize_session=False)
-    )
+    db.query(Asset)
+    .filter(Asset.asset_code.notin_(seen_asset_codes), Asset.is_active == True)
+    .update({Asset.is_active: False, Asset.status: "Inactive"}, synchronize_session=False)
+)
 
     db.commit()
 
