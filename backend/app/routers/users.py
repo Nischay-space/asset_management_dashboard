@@ -5,7 +5,6 @@ from app.database import get_db
 from app import models, schemas
 from app.auth import get_current_user
 from app.models import User
-from fastapi import HTTPException
 from app.auth import require_admin
 
 router = APIRouter(prefix="/users", tags=["users"])

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from rapidfuzz import fuzz
 from app.database import get_db
-from app.models import User, AssetAssignment, DuplicateDismissal
+from app.models import User, DuplicateDismissal
 from app.auth import require_admin
 
 router = APIRouter(prefix="/duplicates", tags=["duplicates"])
