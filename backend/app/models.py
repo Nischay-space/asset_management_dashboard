@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from app.database import Base
 
@@ -59,7 +59,7 @@ class Invoice(Base):
     uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
     notes = Column(String, nullable=True)
 
-    asset = relationship("Asset", backref="invoices")
+    asset = relationship("Asset", backref=backref("invoices", passive_deletes=True))
     uploader = relationship("User")
 
 class DuplicateDismissal(Base):
