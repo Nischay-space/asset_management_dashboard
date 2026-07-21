@@ -44,7 +44,7 @@ interface UserTableProps {
 
 export default function UserTable({ users, onAssetClick, onEdit, onDelete }: UserTableProps) {
   const [expanded, setExpanded] = useState<ExpandedState>({});
-  const navigate = useNavigate();
+
 
   const columns = [
     columnHelper.display({

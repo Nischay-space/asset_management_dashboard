@@ -25,7 +25,7 @@ export default function AssetFilterPanel({ filters, onChange }: AssetFilterPanel
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 mb-4 flex flex-wrap items-end gap-3">
-      <div className="flex-1 min-w-[180px]">
+      <div className="flex-1 min-w-35">
         <label className="block text-xs text-gray-500 mb-1">Search</label>
         <input
           type="text"
@@ -36,7 +36,7 @@ export default function AssetFilterPanel({ filters, onChange }: AssetFilterPanel
         />
       </div>
 
-      <div className="min-w-[140px]">
+      <div className="min-w-35">
         <label className="block text-xs text-gray-500 mb-1">Type</label>
         <select value={filters.commodity_type ?? ''} onChange={(e) => updateFilter('commodity_type', e.target.value)} className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm">
           <option value="">All types</option>
@@ -44,7 +44,7 @@ export default function AssetFilterPanel({ filters, onChange }: AssetFilterPanel
         </select>
       </div>
 
-      <div className="min-w-[140px]">
+      <div className="min-w-35">
         <label className="block text-xs text-gray-500 mb-1">Location</label>
         <select value={filters.location ?? ''} onChange={(e) => updateFilter('location', e.target.value)} className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm">
           <option value="">All locations</option>
@@ -52,7 +52,7 @@ export default function AssetFilterPanel({ filters, onChange }: AssetFilterPanel
         </select>
       </div>
 
-      <div className="min-w-[140px]">
+      <div className="min-w-35">
         <label className="block text-xs text-gray-500 mb-1">Status</label>
         <select value={filters.status ?? ''} onChange={(e) => updateFilter('status', e.target.value)} className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm">
           <option value="">All statuses</option>
