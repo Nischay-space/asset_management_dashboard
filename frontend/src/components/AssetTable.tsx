@@ -61,7 +61,7 @@ export default function AssetTable({ assets, onRowClick, onEdit, onDelete }: Ass
     }),
     columnHelper.accessor('status', {
       header: 'Status',
-      cell: (info) => <StatusBadge status={info.row.original.is_active ? info.getValue() : 'Inactive'} />,
+      cell: (info) => <StatusBadge status={info.getValue()} />,
     }),
 
     columnHelper.accessor('assigned_users', {

@@ -84,9 +84,9 @@ export default function CommandPalette({ open, onClose, onSelectAsset }: Command
                 onClick={() => goToAsset(a.id)}
                 className="w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50 text-left"
               >
-                <Package className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-800">{a.name}</span>
-                <span className="text-xs text-gray-400 ml-auto">{a.asset_code}</span>
+                <Package className="w-4 h-4 text-gray-400 shrink-0" />
+                <span className="text-gray-800 truncate min-w-0 flex-1">{a.name}</span>
+                <span className="text-xs text-gray-400 shrink-0 whitespace-nowrap max-w-35 truncate">{a.asset_code}</span>
               </button>
             ))}
           </div>
