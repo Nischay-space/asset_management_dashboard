@@ -93,7 +93,9 @@ def create_asset(payload: schemas.AssetCreate, db: Session = Depends(get_db), cu
         if data.get(field):
             data[field] = normalize_title(data[field])
 
-    asset = models.Asset(**data, is_active=True)
+    is_active = data.get("status", "").strip().lower() != "inactive" if data.get("status") else True
+
+    asset = models.Asset(**data, is_active=is_active)
     db.add(asset)
     db.commit()
     db.refresh(asset)
@@ -169,12 +171,17 @@ def update_asset(asset_id: int, payload: schemas.AssetUpdate, db: Session = Depe
         if field in updates and updates[field]:
             updates[field] = normalize_title(updates[field])
 
+    if "status" in updates and updates["status"]:
+        updates["is_active"] = updates["status"].strip().lower() != "inactive"
+
     for field, value in updates.items():
         setattr(asset, field, value)
 
     db.commit()
     db.refresh(asset)
     return asset
+
+
 
 
 #filter endpoint
